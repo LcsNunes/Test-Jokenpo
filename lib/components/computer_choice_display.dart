@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'choice_button.dart';  // Importando o enum JokenpoChoice
+import 'choice_button.dart'; 
 
 class ComputerChoiceDisplay extends StatelessWidget {
   final JokenpoChoice? choice;
