@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import '../components/choice_button.dart';
+import '../components/computer_choice_display.dart';
+import '../components/result_display.dart';
+import '../components/score_board.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -7,146 +12,111 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-int itemPosition = 0;
-PageController pageController = PageController();
-
 class _HomePageState extends State<HomePage> {
+  JokenpoChoice? playerChoice;
+  JokenpoChoice? computerChoice;
+  String resultMessage = '';
+  int playerWins = 0;
+  int computerWins = 0;
+  int draws = 0;
+
+  JokenpoChoice getComputerChoice() {
+    return JokenpoChoice.values[Random().nextInt(JokenpoChoice.values.length)];
+  }
+
+  String determineWinner(JokenpoChoice playerChoice, JokenpoChoice computerChoice) {
+    if (playerChoice == computerChoice) {
+      draws++;
+      return 'Empate!';
+    }
+
+    switch (playerChoice) {
+      case JokenpoChoice.pedra:
+        if (computerChoice == JokenpoChoice.tesoura) {
+          playerWins++;
+          return 'Você venceu!';
+        } else {
+          computerWins++;
+          return 'Computador venceu!';
+        }
+      case JokenpoChoice.papel:
+        if (computerChoice == JokenpoChoice.pedra) {
+          playerWins++;
+          return 'Você venceu!';
+        } else {
+          computerWins++;
+          return 'Computador venceu!';
+        }
+      case JokenpoChoice.tesoura:
+        if (computerChoice == JokenpoChoice.papel) {
+          playerWins++;
+          return 'Você venceu!';
+        } else {
+          computerWins++;
+          return 'Computador venceu!';
+        }
+    }
+  }
+
+  void playGame(JokenpoChoice choice) {
+    setState(() {
+      playerChoice = choice;
+      computerChoice = getComputerChoice();
+      resultMessage = determineWinner(playerChoice!, computerChoice!);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         title: Text('Faça sua jogada'),
         centerTitle: true,
-        backgroundColor:const Color.fromARGB(255, 40, 179, 235),
+        backgroundColor: Color.fromARGB(255, 40, 179, 235),
       ),
-
-      body:
-       Container(
+      body: Container(
         width: MediaQuery.of(context).size.width,
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded( 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            'https://wesraiuga.github.io/games/assets/img/jokenpo/jokenpo-user-pedra.png'),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: 100,
-                    margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            'https://wesraiuga.github.io/games/assets/img/jokenpo/jokenpo-user-papel.png'),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: 100,
-                    margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            'https://wesraiuga.github.io/games/assets/img/jokenpo/jokenpo-user-tesoura.png'),
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width * 0.3,
-                    height: 100,
-                    margin: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  ),
-                ),
+                ChoiceButton(choice: JokenpoChoice.pedra, onSelect: playGame),
+                ChoiceButton(choice: JokenpoChoice.papel, onSelect: playGame),
+                ChoiceButton(choice: JokenpoChoice.tesoura, onSelect: playGame),
               ],
             ),
-             Container(
-            margin: const EdgeInsets.all(30.0),
-            child: Text(
-              'Jogada do Computador',
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
-        
-        Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 108, 196, 177),
-          shape: BoxShape.circle
-          
-        ),
-        width: MediaQuery.of(context).size.width * 0.8,
-        height: 100,
-        margin: const EdgeInsets.only(bottom: 70.0),
-        child: Center(
-          child: Text(
-            'Tesoura',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: const Color.fromARGB(255, 241, 241, 241)
-            ),))
-        ),
-                 Container(
-            margin: const EdgeInsets.only(top: 10.0), // Adiciona margem superior
-            child: Text(
-              'Resultado',
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 50.0), // Adiciona margem superior
-            child: Text(
-              'Você Ganhou',
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 20.0), // Adiciona margem superior
-            child: Text(
-              'Placar',
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
-               
-                Container(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              //shape: BoxShape.circle
-              borderRadius: BorderRadius.circular(12)
-            ),
-            width: MediaQuery.of(context).size.width * 0.75, //para ficar na tela inteira
-            height: 100,
-            margin: EdgeInsets.all(10), //.all e .only  .assymetric
-            child: Center(
+            Container(
+              margin: EdgeInsets.all(30.0),
               child: Text(
-                'Voce           PC',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.yellow
-                ),))
+                'Jogada do Computador',
+                style: TextStyle(fontSize: 20),
+              ),
             ),
-            
+            ComputerChoiceDisplay(choice: computerChoice),
+            Container(
+              margin: EdgeInsets.only(top: 10.0),
+              child: Text(
+                'Resultado',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ResultDisplay(resultMessage: resultMessage),
+            Container(
+              margin: EdgeInsets.only(bottom: 20.0),
+              child: Text(
+                'Placar',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ScoreBoard(
+              playerWins: playerWins,
+              computerWins: computerWins,
+              draws: draws,
+            ),
           ],
-          
         ),
-      )
+      ),
     );
   }
 }
